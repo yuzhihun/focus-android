@@ -78,6 +78,12 @@ repositories {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'com.android.support:support-annotations:25.1.1'
+    }
+}
+
 dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:customtabs:25.3.1'
@@ -97,6 +103,7 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
+    androidTestCompile "tools.fastlane:screengrab:1.0.2"
 }
 
 task buildBlocklists(type:Exec) {
