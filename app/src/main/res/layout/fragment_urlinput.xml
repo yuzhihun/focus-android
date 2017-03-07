@@ -25,7 +25,8 @@
             android:layout_margin="8dp"
             android:animateLayoutChanges="true"
             android:background="@drawable/urlbar_background"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:transitionName="urlbar">
 
             <org.mozilla.focus.widget.InlineAutocompleteEditText
                 android:id="@+id/url_edit"
@@ -47,8 +48,7 @@
                 android:textColor="#ffffff"
                 android:textColorHighlight="@color/colorAutocompleteHighlight"
                 android:textColorHint="#40ffffff"
-                android:textSize="15sp"
-                android:transitionName="urlbar"/>
+                android:textSize="15sp"/>
 
             <ImageButton
                 android:id="@+id/clear"
