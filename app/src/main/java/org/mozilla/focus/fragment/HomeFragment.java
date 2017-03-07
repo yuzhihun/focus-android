@@ -49,7 +49,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Popu
             case R.id.url:
                 final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.beginTransaction()
-                        .add(R.id.container, UrlInputFragment.create())
+                        .addSharedElement(view, "urlbar")
+                        .replace(R.id.container, UrlInputFragment.create())
                         .addToBackStack("url_input")
                         .commit();
                 break;

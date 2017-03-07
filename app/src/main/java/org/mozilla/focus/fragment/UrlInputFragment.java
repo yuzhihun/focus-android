@@ -8,11 +8,14 @@ package org.mozilla.focus.fragment;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.transition.ChangeBounds;
+import android.transition.ChangeTransform;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.StyleSpan;
+import android.transition.TransitionSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +32,15 @@ import org.mozilla.focus.widget.InlineAutocompleteEditText;
  */
 public class UrlInputFragment extends Fragment implements View.OnClickListener, TextWatcher {
     public static final String ARGUMENT_URL = "url";
+
+    public UrlInputFragment() {
+        final TransitionSet transitionSet = new TransitionSet();
+
+        transitionSet.addTransition(new ChangeBounds());
+        transitionSet.addTransition(new ChangeTransform());
+
+        setSharedElementEnterTransition(transitionSet);
+    }
 
     public static UrlInputFragment create() {
         final UrlInputFragment fragment = new UrlInputFragment();
@@ -90,7 +102,6 @@ public class UrlInputFragment extends Fragment implements View.OnClickListener, 
         if (getArguments().containsKey(ARGUMENT_URL)) {
             urlView.setText(getArguments().getString(ARGUMENT_URL));
         }
-
         return view;
     }
 
