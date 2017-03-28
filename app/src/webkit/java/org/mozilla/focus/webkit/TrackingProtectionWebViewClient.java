@@ -6,22 +6,23 @@ package org.mozilla.focus.webkit;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.http.SslError;
 import android.os.AsyncTask;
 import android.support.annotation.WorkerThread;
-import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.mozilla.focus.BuildConfig;
 import org.mozilla.focus.R;
 import org.mozilla.focus.webkit.matcher.UrlMatcher;
+import org.mozilla.focus.webkit.matcher.UrlMatcher2;
 
 public class TrackingProtectionWebViewClient extends WebViewClient {
     protected String currentPageURL;
 
     private static volatile UrlMatcher MATCHER;
+    private static volatile UrlMatcher2 MATCHER2;
 
     public static void triggerPreload(final Context context) {
         // Only trigger loading if MATCHER is null. (If it's null, MATCHER could already be loading,
@@ -42,6 +43,9 @@ public class TrackingProtectionWebViewClient extends WebViewClient {
     @WorkerThread private static synchronized UrlMatcher getMatcher(final Context context) {
         if (MATCHER == null) {
             MATCHER = UrlMatcher.loadMatcher(context, R.raw.blocklist, new int[] { R.raw.google_mapping }, R.raw.entitylist);
+            if (BuildConfig.BUILD_TYPE.equals("debug")) {
+                MATCHER2 = new UrlMatcher2(context);
+            }
         }
         return MATCHER;
     }
@@ -69,12 +73,29 @@ public class TrackingProtectionWebViewClient extends WebViewClient {
         }
 
         final UrlMatcher matcher = getMatcher(view.getContext());
+        // MATCHER2 will always exist if MATCHER exists
+        final UrlMatcher2 matcher2 = MATCHER2;
 
         // Don't block the main frame from being loaded. This also protects against cases where we
         // open a link that redirects to another app (e.g. to the play store).
-        if ((!request.isForMainFrame()) &&
-                matcher.matches(request.getUrl().toString(), currentPageURL)) {
-            return new WebResourceResponse(null, null, null);
+        if (!request.isForMainFrame()) {
+            final boolean match1;
+            final boolean match2;
+
+            match1 = matcher.matches(request.getUrl().toString(), currentPageURL);
+            if (BuildConfig.BUILD_TYPE.equals("debug")) {
+                match2 = matcher2.matches(request.getUrl().toString(), currentPageURL);
+
+                if (match1 && !match2) {
+                    throw new IllegalStateException("TrieMatcher is more restrictive for: " + request.getUrl().toString() + " on " + currentPageURL);
+                } else if (match2 && !match1) {
+                    throw new IllegalStateException("TrieMatcher failed for: " + request.getUrl().toString() + " on " + currentPageURL);
+                }
+            }
+
+            if (match1) {
+                return new WebResourceResponse(null, null, null);
+            }
         }
 
         return super.shouldInterceptRequest(view, request);
