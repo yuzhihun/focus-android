@@ -35,18 +35,18 @@ import java.util.regex.Pattern;
  * remove one of the two UrlMatcher's anyway - so having copies of (the primarily pref-handling)
  * is probably better for now.
  */
-public class UrlMatcher2 implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class RegexURLMatcher implements SharedPreferences.OnSharedPreferenceChangeListener{
     private static final int ID_WEBFONTS = -1;
 
-    private static final String LOGTAG = "URLMATCHER2";
+    private static final String LOGTAG = "REGEXURLMATCHER";
 
     private static Map<String, Integer> loadDefaultPrefMap(final Context context) {
         Map<String, Integer> tempMap = new HashMap<>(5);
 
-        tempMap.put(context.getString(R.string.pref_key_privacy_block_ads), R.raw.disconnect_advertising);
-        tempMap.put(context.getString(R.string.pref_key_privacy_block_analytics), R.raw.disconnect_analytics);
-        tempMap.put(context.getString(R.string.pref_key_privacy_block_social), R.raw.disconnect_social);
-        tempMap.put(context.getString(R.string.pref_key_privacy_block_other), R.raw.disconnect_content);
+        tempMap.put(context.getString(R.string.pref_key_privacy_block_ads), R.raw.disconnect_regex_advertising);
+        tempMap.put(context.getString(R.string.pref_key_privacy_block_analytics), R.raw.disconnect_regex_analytics);
+        tempMap.put(context.getString(R.string.pref_key_privacy_block_social), R.raw.disconnect_regex_social);
+        tempMap.put(context.getString(R.string.pref_key_privacy_block_other), R.raw.disconnect_regex_content);
 
         // This is a "fake" category - webfont handling is independent of the blocklists
         tempMap.put(context.getString(R.string.pref_key_performance_block_webfonts), ID_WEBFONTS);
@@ -158,7 +158,7 @@ public class UrlMatcher2 implements SharedPreferences.OnSharedPreferenceChangeLi
 
     ArrayList<BlockRule> blockList;
 
-    public UrlMatcher2(final Context context) {
+    public RegexURLMatcher(final Context context) {
         this.context = context.getApplicationContext();
 
         categoryPrefMap = loadDefaultPrefMap(context);

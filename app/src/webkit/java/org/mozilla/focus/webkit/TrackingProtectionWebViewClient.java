@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.annotation.WorkerThread;
+import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -16,13 +17,17 @@ import android.webkit.WebViewClient;
 import org.mozilla.focus.BuildConfig;
 import org.mozilla.focus.R;
 import org.mozilla.focus.webkit.matcher.UrlMatcher;
-import org.mozilla.focus.webkit.matcher.UrlMatcher2;
+import org.mozilla.focus.webkit.matcher.RegexURLMatcher;
 
 public class TrackingProtectionWebViewClient extends WebViewClient {
     protected String currentPageURL;
 
     private static volatile UrlMatcher MATCHER;
-    private static volatile UrlMatcher2 MATCHER2;
+    private static volatile RegexURLMatcher MATCHER2;
+
+    private long timeElapsedMatcher1 = 0;
+    private long timeElapsedMatcher2 = 0;
+    private int counter = 0;
 
     public static void triggerPreload(final Context context) {
         // Only trigger loading if MATCHER is null. (If it's null, MATCHER could already be loading,
@@ -44,7 +49,7 @@ public class TrackingProtectionWebViewClient extends WebViewClient {
         if (MATCHER == null) {
             MATCHER = UrlMatcher.loadMatcher(context, R.raw.blocklist, new int[] { R.raw.google_mapping }, R.raw.entitylist);
             if (BuildConfig.BUILD_TYPE.equals("debug")) {
-                MATCHER2 = new UrlMatcher2(context);
+                MATCHER2 = new RegexURLMatcher(context);
             }
         }
         return MATCHER;
@@ -74,7 +79,7 @@ public class TrackingProtectionWebViewClient extends WebViewClient {
 
         final UrlMatcher matcher = getMatcher(view.getContext());
         // MATCHER2 will always exist if MATCHER exists
-        final UrlMatcher2 matcher2 = MATCHER2;
+        final RegexURLMatcher matcher2 = MATCHER2;
 
         // Don't block the main frame from being loaded. This also protects against cases where we
         // open a link that redirects to another app (e.g. to the play store).
@@ -82,9 +87,22 @@ public class TrackingProtectionWebViewClient extends WebViewClient {
             final boolean match1;
             final boolean match2;
 
+            // Milliseconds aren't finegrained enough for the Trie based matcher
+            final long timeStartMatcher1 = System.nanoTime();
             match1 = matcher.matches(request.getUrl().toString(), currentPageURL);
-            if (BuildConfig.BUILD_TYPE.equals("debug")) {
+            final long timeEndMatcher1 = System.nanoTime();
+
+            // We only bundle the ios-style lists in focusWebkitDebug, so the Regex matcher
+            // is only functional there
+            if (BuildConfig.BUILD_TYPE.equals("debug") && BuildConfig.FLAVOR_product.equals("focus")) {
+                final long timeStartMatcher2 = System.nanoTime();
                 match2 = matcher2.matches(request.getUrl().toString(), currentPageURL);
+                final long timeEndMatcher2 = System.nanoTime();
+
+                timeElapsedMatcher1 += (timeEndMatcher1 - timeStartMatcher1);
+                timeElapsedMatcher2 += (timeEndMatcher2 - timeStartMatcher2);
+
+                Log.d("MATCHERCOMPARISON", "c=" + ++counter + " 1=" + timeElapsedMatcher1 + " 2=" + timeElapsedMatcher2);
 
                 if (match1 && !match2) {
                     throw new IllegalStateException("TrieMatcher is more restrictive for: " + request.getUrl().toString() + " on " + currentPageURL);
