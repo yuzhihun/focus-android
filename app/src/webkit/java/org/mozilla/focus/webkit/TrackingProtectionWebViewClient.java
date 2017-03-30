@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.AsyncTask;
 import android.support.annotation.WorkerThread;
+import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -89,6 +90,7 @@ public class TrackingProtectionWebViewClient extends WebViewClient {
      */
     public void notifyCurrentURL(final String url) {
         currentPageURL = url;
+        Log.d("URLUPDATE", "notifyCurrentURL=" + currentPageURL);
     }
 
     @Override
@@ -101,6 +103,7 @@ public class TrackingProtectionWebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         currentPageURL = url;
+        Log.d("URLUPDATE", "shouldOverrideUrlLoading=" + currentPageURL);
 
         return super.shouldOverrideUrlLoading(view, url);
     }

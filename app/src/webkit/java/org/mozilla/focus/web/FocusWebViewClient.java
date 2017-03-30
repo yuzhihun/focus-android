@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.support.v4.util.ArrayMap;
+import android.util.Log;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -53,6 +54,8 @@ public class FocusWebViewClient extends TrackingProtectionWebViewClient {
         // We update the URL when loading has finished too (redirects can happen after a request has been
         // made in which case we don't get shouldInterceptRequest with the final URL), but this
         // allows us to update the URL during loading.
+        Log.d("URLUPDATE", "shouldInterceptRequest=" + request.getUrl());
+
         if (request.isForMainFrame()) {
 
             // WebView will always add a trailing / to the request URL, but currentPageURL may or may
@@ -74,6 +77,7 @@ public class FocusWebViewClient extends TrackingProtectionWebViewClient {
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        Log.d("URLUPDATE", "started=" + url + " actualurl=" + view.getUrl());
         if (errorReceived) {
             // When dealing with error pages, webkit sometimes sends onPageStarted()
             // without a matching onPageFinished(). We hack around that by using
@@ -92,6 +96,8 @@ public class FocusWebViewClient extends TrackingProtectionWebViewClient {
 
     @Override
     public void onPageFinished(WebView view, final String url) {
+        Log.d("URLUPDATE", "pagefinished=" + url + " actualurl=" + view.getUrl());
+
         if (callback != null) {
             callback.onPageFinished(view.getCertificate() != null);
             // The URL which is supplied in onPageFinished() could be fake (see #301), but webview's
