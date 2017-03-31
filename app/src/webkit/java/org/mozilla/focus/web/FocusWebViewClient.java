@@ -214,4 +214,10 @@ public class FocusWebViewClient extends TrackingProtectionWebViewClient {
         webView.loadDataWithBaseURL("file:///android_res/raw/about.html", data, "text/html", "UTF-8", null);
     }
 
+    @Override
+    public void onPageCommitVisible(WebView view, String url) {
+        Log.d("URLUPDATE", "pageCommit=" + url + " viewurl=" + view.getUrl());
+
+        super.onPageCommitVisible(view, url);
+    }
 }

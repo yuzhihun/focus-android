@@ -12,6 +12,7 @@ import android.os.Build;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
@@ -237,6 +238,8 @@ public class WebViewProvider {
             return new WebChromeClient() {
                 @Override
                 public void onProgressChanged(WebView view, int newProgress) {
+                    Log.d("URLUPDATE", "viewurl=" + view.getUrl() + " progress=" + newProgress);
+
                     if (callback != null) {
                         callback.onProgress(newProgress);
                     }
