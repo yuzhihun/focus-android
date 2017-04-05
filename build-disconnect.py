@@ -111,7 +111,7 @@ def generate_blacklists(blacklist="shavar-prod-lists/disconnect-blacklist.json",
         print("{cat} blacklist has {count} entries."
               .format(cat=category, count=len(blocklist)))
 
-        with open("app/src/main/res/raw/disconnect_{0}.json".format(category.lower()),
+        with open("app/src/focusWebkitDebug/res/raw/disconnect_regex_{0}.json".format(category.lower()),
                   "w") as fp:
             out = json.dumps(blocklist, indent=0,
                              separators=(',', ':')).replace('\n', '')
@@ -119,9 +119,16 @@ def generate_blacklists(blacklist="shavar-prod-lists/disconnect-blacklist.json",
 
 
 if __name__ == "__main__":
-    # generate_blacklists()
+    webkitdebugpath = "app/src/focusWebkitDebug/res/raw"
+    if not os.path.exists(webkitdebugpath):
+        os.makedirs(webkitdebugpath)
 
-    # Dumb copy the lists for now, until we switch to the compacted version as per focus-ios
+    # for webkit-debug only: we use the generated ios-style lists for the regex-based
+    # secondary urlmatcher:
+    generate_blacklists()
+
+    # And for production, do a dumb copy of the lists: (Our faster trie based matcher
+    # can parse the raw disconnect lists)
     rawpath = "app/src/webkit/res/raw"
     if not os.path.exists(rawpath):
         os.makedirs(rawpath)
