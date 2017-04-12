@@ -64,8 +64,8 @@ public class UrlAutoCompleteFilter implements InlineAutocompleteEditText.OnFilte
             protected List<String> doInBackground(Resources... resources) {
                 final BufferedReader reader = new BufferedReader(new InputStreamReader(
                         resources[0].openRawResource(R.raw.topdomains)));
-                try {
 
+                try {
                     final List<String> domains = new ArrayList<String>(460);
 
                     String line;
