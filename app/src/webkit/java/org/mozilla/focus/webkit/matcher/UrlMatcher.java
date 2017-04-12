@@ -78,10 +78,14 @@ public class UrlMatcher implements  SharedPreferences.OnSharedPreferenceChangeLi
 
             try {
                 BlocklistProcessor.loadCategoryMap(jsonReader, categoryMap, BlocklistProcessor.ListType.BASE_LIST);
-
-                jsonReader.close();
             } catch (IOException e) {
                 throw new IllegalStateException("Unable to parse blacklist");
+            } finally {
+                try {
+                    jsonReader.close();
+                } catch (IOException e) {
+                    // Nothing to do here...
+                }
             }
         }
 
@@ -92,10 +96,14 @@ public class UrlMatcher implements  SharedPreferences.OnSharedPreferenceChangeLi
 
                 try {
                     BlocklistProcessor.loadCategoryMap(jsonReader, categoryMap, BlocklistProcessor.ListType.OVERRIDE_LIST);
-
-                    jsonReader.close();
                 } catch (IOException e) {
                     throw new IllegalStateException("Unable to parse override blacklist");
+                } finally {
+                    try {
+                        jsonReader.close();
+                    } catch (IOException e) {
+                        // Nothing to do here...
+                    }
                 }
             }
         }
